@@ -1,9 +1,5 @@
 #![no_std]
-#![feature(conservative_impl_trait)]
 #![feature(never_type)]
-#![feature(duration_extras)]
-#![feature(generators)]
-#![feature(proc_macro)]
 
 extern crate anchor_experiment;
 extern crate cortex_m;
