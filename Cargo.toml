@@ -1,0 +1,22 @@
+[package]
+name = "wfe-executor"
+version = "0.1.0"
+authors = ["Wim Looman <wim.looman@kiwi.ki>"]
+
+[dependencies]
+cortex-m = "0.4.0"
+
+[dependencies.futures-core]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "target_has_atomic"
+default-features = false
+
+[dependencies.futures-stable]
+git = "https://github.com/Nemo157/futures-stable"
+branch = "target_has_atomic"
+default-features = false
+
+[dependencies.anchor-experiment]
+git = "https://github.com/withoutboats/anchor_experiment"
+default-features = false
+
