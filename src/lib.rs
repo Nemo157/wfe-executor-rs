@@ -6,6 +6,7 @@ extern crate cortex_m;
 extern crate futures_core as futures;
 extern crate futures_stable as stable;
 
+use core::u32;
 use core::{ptr, convert::From};
 
 use pin_api::{PinMut, pinned};
@@ -56,7 +57,12 @@ impl Executor {
         let mut future = future.into_future();
         loop {
             let Ok(Async::Pending) = future.poll(&mut context);
-            // self.0.NVIC.clear_pending(...);
+            // Clear all pending interrupts
+            unsafe {
+                for i in 0..16 {
+                    self.0.NVIC.icpr[i].write(u32::MAX);
+                }
+            }
             cortex_m::asm::wfe();
         }
     }
@@ -69,7 +75,12 @@ impl Executor {
         let mut future = future.as_pin_mut();
         loop {
             let Ok(Async::Pending) = PinMut::borrow(&mut future).poll(&mut context);
-            // self.0.NVIC.clear_pending(...);
+            // Clear all pending interrupts
+            unsafe {
+                for i in 0..16 {
+                    self.0.NVIC.icpr[i].write(u32::MAX);
+                }
+            }
             cortex_m::asm::wfe();
         }
     }
