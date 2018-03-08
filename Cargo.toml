@@ -17,3 +17,20 @@ default-features = false
 [dependencies.pin-api]
 version = "0.1.1"
 default-features = false
+
+
+[patch.crates-io.futures]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "atomic-std-only"
+[patch.crates-io.futures-core]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "atomic-std-only"
+[patch.crates-io.futures-executor]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "atomic-std-only"
+[patch.crates-io.futures-io]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "atomic-std-only"
+[patch.crates-io.futures-util]
+git = "https://github.com/Nemo157/futures-rs"
+branch = "atomic-std-only"
