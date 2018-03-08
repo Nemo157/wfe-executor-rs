@@ -1,14 +1,14 @@
 #![no_std]
 #![feature(never_type)]
 
-extern crate anchor_experiment;
+extern crate pin_api;
 extern crate cortex_m;
 extern crate futures_core as futures;
 extern crate futures_stable as stable;
 
 use core::{ptr, convert::From};
 
-use anchor_experiment::{Pin, pinned};
+use pin_api::{PinMut, pinned};
 use futures::task::{Context, LocalMap, Waker, UnsafeWake};
 use futures::{Async, Future, IntoFuture};
 use stable::StableFuture;
@@ -66,9 +66,9 @@ impl Executor {
         let waker = Waker::from(WFEWaker);
         let mut context = Context::new(&mut map, &waker);
         let mut future = pinned(future);
-        let mut future = future.as_pin();
+        let mut future = future.as_pin_mut();
         loop {
-            let Ok(Async::Pending) = Pin::borrow(&mut future).poll(&mut context);
+            let Ok(Async::Pending) = PinMut::borrow(&mut future).poll(&mut context);
             // self.0.NVIC.clear_pending(...);
             cortex_m::asm::wfe();
         }
