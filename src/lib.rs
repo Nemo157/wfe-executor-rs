@@ -50,13 +50,21 @@ impl Executor {
         Executor(peripherals)
     }
 
-    pub fn run<F>(self, future: F) where F: IntoFuture<Item = !, Error = !> {
+    pub fn run<F: Future>(self, future: F) -> Result<F::Item, F::Error> {
         let mut map = LocalMap::new();
         let waker = Waker::from(WFEWaker);
         let mut context = Context::new(&mut map, &waker);
         let mut future = future.into_future();
         loop {
-            let Ok(Async::Pending) = future.poll(&mut context);
+            match future.poll(&mut context) {
+                Ok(Async::Pending) => {}
+                Ok(Async::Ready(val)) => {
+                    return Ok(val);
+                }
+                Err(err) => {
+                    return Err(err);
+                }
+            }
             // Clear all pending interrupts
             unsafe {
                 for i in 0..16 {
@@ -67,14 +75,22 @@ impl Executor {
         }
     }
 
-    pub fn run_stable<F>(self, future: F) where F: StableFuture<Item = !, Error = !> {
+    pub fn run_stable<F: StableFuture>(self, future: F) -> Result<F::Item, F::Error> {
         let mut map = LocalMap::new();
         let waker = Waker::from(WFEWaker);
         let mut context = Context::new(&mut map, &waker);
         let mut future = pinned(future);
         let mut future = future.as_pin_mut();
         loop {
-            let Ok(Async::Pending) = PinMut::borrow(&mut future).poll(&mut context);
+            match PinMut::borrow(&mut future).poll(&mut context) {
+                Ok(Async::Pending) => {}
+                Ok(Async::Ready(val)) => {
+                    return Ok(val);
+                }
+                Err(err) => {
+                    return Err(err);
+                }
+            }
             // Clear all pending interrupts
             unsafe {
                 for i in 0..16 {
