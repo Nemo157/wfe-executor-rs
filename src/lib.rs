@@ -93,13 +93,15 @@ impl Executor {
                     return Err(err);
                 }
             }
-            // Clear all pending interrupts
+            cortex_m::asm::wfe();
+            // Clear all pending interrupts, must happen between WFE and
+            // polling the future in case the future causes another interrupt
+            // to occur while polling.
             unsafe {
                 for i in 0..16 {
                     self.0.NVIC.icpr[i].write(u32::MAX);
                 }
             }
-            cortex_m::asm::wfe();
         }
     }
 }
