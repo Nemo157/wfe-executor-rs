@@ -71,7 +71,7 @@ impl Executor {
             // to occur while polling.
             //
             // TODO: armv7-m allows for a device specific number of interrupts
-            self.0.NVIC.icpr[0].write(u32::MAX);
+            unsafe { self.0.NVIC.icpr[0].write(u32::MAX); }
         }
     }
 
@@ -97,7 +97,7 @@ impl Executor {
             // to occur while polling.
             //
             // TODO: armv7-m allows for a device specific number of interrupts
-            self.0.NVIC.icpr[0].write(u32::MAX);
+            unsafe { self.0.NVIC.icpr[0].write(u32::MAX); }
         }
     }
 }
