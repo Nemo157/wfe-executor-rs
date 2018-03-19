@@ -69,11 +69,9 @@ impl Executor {
             // Clear all pending interrupts, must happen between WFE and
             // polling the future in case the future causes another interrupt
             // to occur while polling.
-            unsafe {
-                for i in 0..16 {
-                    self.0.NVIC.icpr[i].write(u32::MAX);
-                }
-            }
+            //
+            // TODO: armv7-m allows for a device specific number of interrupts
+            self.0.NVIC.icpr[0].write(u32::MAX);
         }
     }
 
@@ -97,11 +95,9 @@ impl Executor {
             // Clear all pending interrupts, must happen between WFE and
             // polling the future in case the future causes another interrupt
             // to occur while polling.
-            unsafe {
-                for i in 0..16 {
-                    self.0.NVIC.icpr[i].write(u32::MAX);
-                }
-            }
+            //
+            // TODO: armv7-m allows for a device specific number of interrupts
+            self.0.NVIC.icpr[0].write(u32::MAX);
         }
     }
 }
