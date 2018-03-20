@@ -7,31 +7,16 @@ authors = ["Wim Looman <wim.looman@kiwi.ki>"]
 cortex-m = "0.4.0"
 
 [dependencies.futures-core]
-version = "0.2.0-alpha"
-default-features = false
-
-[dependencies.futures-stable]
-version = "0.2.0-alpha"
-default-features = false
-
-[dependencies.pin-api]
-version = "0.1.1"
+git = "https://github.com/rust-lang-nursery/futures-rs"
 default-features = false
 features = ["nightly"]
 
+[dependencies.futures-stable]
+git = "https://github.com/rust-lang-nursery/futures-rs"
+default-features = false
+features = ["nightly"]
 
-[patch.crates-io.futures]
-git = "https://github.com/Nemo157/futures-rs"
-branch = "atomic-std-only"
-[patch.crates-io.futures-core]
-git = "https://github.com/Nemo157/futures-rs"
-branch = "atomic-std-only"
-[patch.crates-io.futures-executor]
-git = "https://github.com/Nemo157/futures-rs"
-branch = "atomic-std-only"
-[patch.crates-io.futures-io]
-git = "https://github.com/Nemo157/futures-rs"
-branch = "atomic-std-only"
-[patch.crates-io.futures-util]
-git = "https://github.com/Nemo157/futures-rs"
-branch = "atomic-std-only"
+[dependencies.pin-api]
+version = "0.2.1"
+default-features = false
+features = ["nightly"]

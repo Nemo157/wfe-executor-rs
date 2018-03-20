@@ -6,12 +6,15 @@ extern crate cortex_m;
 extern crate futures_core as futures;
 extern crate futures_stable as stable;
 
+mod pin;
+
 use core::u32;
 use core::{ptr, convert::From};
 
-use pin_api::{PinMut, pinned};
+use pin_api::mem::Pin;
+use pin::pinned;
 use futures::task::{Context, LocalMap, Waker, UnsafeWake};
-use futures::{Async, Future, IntoFuture};
+use futures::{Async, IntoFuture};
 use stable::StableFuture;
 
 struct WFEWaker;
@@ -50,29 +53,8 @@ impl Executor {
         Executor(peripherals)
     }
 
-    pub fn run<F: Future>(self, future: F) -> Result<F::Item, F::Error> {
-        let mut map = LocalMap::new();
-        let waker = Waker::from(WFEWaker);
-        let mut context = Context::new(&mut map, &waker);
-        let mut future = future.into_future();
-        loop {
-            match future.poll(&mut context) {
-                Ok(Async::Pending) => {}
-                Ok(Async::Ready(val)) => {
-                    return Ok(val);
-                }
-                Err(err) => {
-                    return Err(err);
-                }
-            }
-            cortex_m::asm::wfe();
-            // Clear all pending interrupts, must happen between WFE and
-            // polling the future in case the future causes another interrupt
-            // to occur while polling.
-            //
-            // TODO: armv7-m allows for a device specific number of interrupts
-            unsafe { self.0.NVIC.icpr[0].write(u32::MAX); }
-        }
+    pub fn run<F: IntoFuture>(self, future: F) -> Result<F::Item, F::Error> {
+        self.run_stable(future.into_future())
     }
 
     pub fn run_stable<F: StableFuture>(self, future: F) -> Result<F::Item, F::Error> {
@@ -80,9 +62,9 @@ impl Executor {
         let waker = Waker::from(WFEWaker);
         let mut context = Context::new(&mut map, &waker);
         let mut future = pinned(future);
-        let mut future = future.as_pin_mut();
+        let mut future = future.as_pin();
         loop {
-            match PinMut::borrow(&mut future).poll(&mut context) {
+            match Pin::borrow(&mut future).poll(&mut context) {
                 Ok(Async::Pending) => {}
                 Ok(Async::Ready(val)) => {
                     return Ok(val);
